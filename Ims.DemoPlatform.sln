@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ims.DemoPlatform.Identity.API", "src\Ims.DemoPlatform.Identity.API\Ims.DemoPlatform.Identity.API.csproj", "{A65BE1D1-BF73-48AF-A07E-356BDCB91504}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ims.DemoPlatform.NotificationService", "src\Ims.DemoPlatform.NotificationService\Ims.DemoPlatform.NotificationService.csproj", "{58223995-90C6-4AD6-BE44-F200F5307FDD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ims.DemoPlatform.Core", "src\Ims.DemoPlatform.Core\Ims.DemoPlatform.Core.csproj", "{710396F7-EE1B-4907-849F-14042104C5BB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A65BE1D1-BF73-48AF-A07E-356BDCB91504}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A65BE1D1-BF73-48AF-A07E-356BDCB91504}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A65BE1D1-BF73-48AF-A07E-356BDCB91504}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A65BE1D1-BF73-48AF-A07E-356BDCB91504}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58223995-90C6-4AD6-BE44-F200F5307FDD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58223995-90C6-4AD6-BE44-F200F5307FDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58223995-90C6-4AD6-BE44-F200F5307FDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58223995-90C6-4AD6-BE44-F200F5307FDD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{710396F7-EE1B-4907-849F-14042104C5BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{710396F7-EE1B-4907-849F-14042104C5BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{710396F7-EE1B-4907-849F-14042104C5BB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{710396F7-EE1B-4907-849F-14042104C5BB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
