@@ -1,28 +1,25 @@
-using EmailService.Consumers;
-using EmailService.Options;
-using EmailService.Services;
+using Ims.DemoPlatform.Core.MessageBus;
+using Ims.DemoPlatform.NotificationService.Consumers;
+using Ims.DemoPlatform.NotificationService.Options;
+using Ims.DemoPlatform.NotificationService.Services;
+using Microsoft.Extensions.Options;
 
 var builder = Host.CreateApplicationBuilder(args);
 
 // Options
-builder.Services.Configure<RabbitOptions>(builder.Configuration.GetSection("RabbitMQ"));
-builder.Services.Configure<EmailOptions>(builder.Configuration.GetSection("Email"));
-builder.Services.Configure<SmtpOptions>(builder.Configuration.GetSection("Smtp"));
-
-// Email provider clean
-var provider = builder.Configuration.GetValue<string>("Email:Provider") ?? "Console";
-switch (provider.ToLowerInvariant())
+builder.Services.Configure<RabbitMqOptions>(builder.Configuration.GetSection(nameof(RabbitMqOptions)));
+builder.Services.AddSingleton(sp =>
 {
-    case "smtp":
-        builder.Services.AddSingleton<IEmailSender, SmtpEmailSender>();
-        break;
-    default:
-        builder.Services.AddSingleton<IEmailSender, ConsoleEmailSender>();
-        break;
-}
+    var opt = sp.GetRequiredService<IOptions<RabbitMqOptions>>().Value;
+    return new MessageBus(opt);
+});
+builder.Services.AddSingleton<IMessageBus>(sp => sp.GetRequiredService<MessageBus>());
+
+builder.Services.Configure<SmtpOptions>(builder.Configuration.GetSection("Smtp"));
+builder.Services.AddSingleton<IEmailSender, SmtpEmailSender>();
 
 // Worker
-builder.Services.AddHostedService<RabbitConsumerService>();
+builder.Services.AddHostedService<AuthConsumer>();
 
 var app = builder.Build();
 app.Run();

@@ -1,9 +1,10 @@
 using System.ComponentModel.DataAnnotations;
+using Ims.DemoPlatform.Identity.API.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
-namespace AuthApi.Controllers;
+namespace Ims.DemoPlatform.Identity.API.Controllers;
 
 [ApiController]
 [Route("roles")]
@@ -12,7 +13,7 @@ public class RolesController : ControllerBase
 {
     private readonly RoleManager<IdentityRole> _roles;
     private readonly UserManager<Data.ApplicationUser> _users;
-    public RolesController(RoleManager<IdentityRole> roles, UserManager<AuthApi.Data.ApplicationUser> users)
+    public RolesController(RoleManager<IdentityRole> roles, UserManager<ApplicationUser> users)
     {
         _roles = roles; _users = users;
     }

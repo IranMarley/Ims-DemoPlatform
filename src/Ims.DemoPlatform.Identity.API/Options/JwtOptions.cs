@@ -1,4 +1,4 @@
-namespace AuthApi.Options;
+namespace Ims.DemoPlatform.Identity.API.Options;
 public class JwtOptions
 {
     public string Issuer { get; set; } = default!;

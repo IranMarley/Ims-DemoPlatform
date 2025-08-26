@@ -13,11 +13,6 @@ services:
     volumes:
       - ./rabbitmq:/var/lib/rabbitmq
 
-  mailpit:
-    image: axllent/mailpit
-    container_name: mailpit
-    ports: ["1025:1025","8025:8025"]
-
   sqlserver:
     image: mcr.microsoft.com/azure-sql-edge:latest
     container_name: sqlserver
@@ -45,7 +40,6 @@ services:
     container_name: identity
     depends_on:
       - rabbitmq
-      - mailpit
       - sqlserver
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
@@ -68,13 +62,16 @@ services:
     container_name: notification
     depends_on:
       - rabbitmq
-      - mailpit
     environment:
       - RabbitMQ__Host=${RABBITMQ_HOST}
       - RabbitMQ__Exchange=${RABBITMQ_EXCHANGE}
-      - Email__Provider=Smtp
+      - Email__Provider=smtp
       - Smtp__Host=${SMTP_HOST}
       - Smtp__Port=${SMTP_PORT}
+      - Smtp__Name=${SMTP_NAME}
+      - Smtp__User=${SMTP_USER}
+      - Smtp__Password=${SMTP_PASSWORD}
+      - Smtp__EnableSsl=${SMTP_ENABLE_SSL}
 
   web:
     build:

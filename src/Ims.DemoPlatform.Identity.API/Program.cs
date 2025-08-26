@@ -1,14 +1,15 @@
-using AuthApi.Configuration;
+using Ims.DemoPlatform.Identity.API.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddIdentityConfiguration(builder.Configuration);
-builder.Services.AddApiConfiguration(builder.Configuration);
-builder.Services.AddSwaggerConfiguration();
+builder.AddIdentityConfiguration();
+builder.AddApiConfiguration();
+builder.AddServiceBusConfiguration();
+builder.AddSwaggerConfiguration();
 
 var app = builder.Build();
 
-app.UseApiConfiguration(app.Environment);
-app.UseSwaggerConfiguration();
+app.UseApiConfiguration();
+app.UseSwaggerConfiguration(app.Environment);
 
 app.Run();

@@ -1,10 +1,10 @@
 using System.ComponentModel.DataAnnotations;
-using AuthApi.Data;
+using Ims.DemoPlatform.Identity.API.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
-namespace AuthApi.Controllers;
+namespace Ims.DemoPlatform.Identity.API.Controllers;
 
 [ApiController]
 [Route("admin")]

@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace AuthApi.Models;
+namespace Ims.DemoPlatform.Identity.API.Models;
 
 public class RefreshToken
 {

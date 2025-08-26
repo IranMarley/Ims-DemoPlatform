@@ -2,17 +2,24 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using AuthApi.Data;
-using AuthApi.Models;
-using AuthApi.Options;
+using Ims.DemoPlatform.Identity.API.Data;
+using Ims.DemoPlatform.Identity.API.Models;
+using Ims.DemoPlatform.Identity.API.Options;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
-namespace AuthApi.Services;
+namespace Ims.DemoPlatform.Identity.API.Services;
 
-public class TokenService
+public interface ITokenService
+{
+    Task<TokenPair> IssueTokenPairAsync(ApplicationUser user);
+    Task<TokenPair?> RefreshAsync(string refreshToken);
+    Task<bool> RevokeAsync(string refreshToken);
+}
+
+public class TokenService : ITokenService
 {
     private readonly JwtOptions _opt;
     private readonly UserManager<ApplicationUser> _userManager;
@@ -25,7 +32,7 @@ public class TokenService
         _db = db;
     }
 
-    public async Task<(string access, string refresh)> IssueTokenPairAsync(ApplicationUser user)
+    public async Task<TokenPair> IssueTokenPairAsync(ApplicationUser user)
     {
         var claims = new List<Claim>
         {
@@ -33,6 +40,7 @@ public class TokenService
             new(JwtRegisteredClaimNames.Email, user.Email ?? ""),
             new(ClaimTypes.NameIdentifier, user.Id)
         };
+        
         var roles = await _userManager.GetRolesAsync(user);
         claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
 
@@ -53,13 +61,14 @@ public class TokenService
             UserId = user.Id,
             ExpiresAtUtc = DateTime.UtcNow.AddDays(_opt.RefreshTokenDays)
         };
+        
         _db.RefreshTokens.Add(refresh);
         await _db.SaveChangesAsync();
 
-        return (access, refresh.Token);
+        return new TokenPair(access, refresh.Token, refresh.ExpiresAtUtc);
     }
 
-    public async Task<(string access, string refresh)?> RefreshAsync(string refreshToken)
+    public async Task<TokenPair?> RefreshAsync(string refreshToken)
     {
         var rt = await _db.RefreshTokens.FirstOrDefaultAsync(x => x.Token == refreshToken && !x.Revoked && x.ExpiresAtUtc > DateTime.UtcNow);
         if (rt is null) return null;

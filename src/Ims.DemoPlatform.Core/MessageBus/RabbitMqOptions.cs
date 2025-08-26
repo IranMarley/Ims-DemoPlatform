@@ -1,4 +1,4 @@
-namespace AuthApi.Options;
+namespace Ims.DemoPlatform.Core.MessageBus;
 
 public class RabbitMqOptions
 {

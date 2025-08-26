@@ -1,42 +1,41 @@
-using EmailService.Options;
+using Ims.DemoPlatform.NotificationService.Options;
+using MailKit.Net.Smtp;
+using MailKit.Security;
 using Microsoft.Extensions.Options;
-using System.Net;
-using System.Net.Mail;
+using MimeKit;
 
-namespace EmailService.Services;
+namespace Ims.DemoPlatform.NotificationService.Services;
 
 public interface IEmailSender
 {
     Task SendAsync(string to, string subject, string htmlBody);
 }
 
-public class ConsoleEmailSender : IEmailSender
-{
-    private readonly EmailOptions _opt;
-    public ConsoleEmailSender(IOptions<EmailOptions> opt) => _opt = opt.Value;
-    public Task SendAsync(string to, string subject, string htmlBody)
-    {
-        Console.WriteLine($"[EMAIL DEV] To: {to}\nSubject: {subject}\nBody: {htmlBody}");
-        return Task.CompletedTask;
-    }
-}
-
 public class SmtpEmailSender : IEmailSender
 {
-    private readonly EmailOptions _email;
     private readonly SmtpOptions _smtp;
-    public SmtpEmailSender(IOptions<EmailOptions> email, IOptions<SmtpOptions> smtp)
+    public SmtpEmailSender(IOptions<SmtpOptions> smtp)
     {
-        _email = email.Value; _smtp = smtp.Value;
+        _smtp = smtp.Value;
     }
 
     public async Task SendAsync(string to, string subject, string htmlBody)
     {
-        using var client = new SmtpClient(_smtp.Host, _smtp.Port) { EnableSsl = _smtp.EnableSsl };
-        if (!string.IsNullOrWhiteSpace(_smtp.User))
-            client.Credentials = new NetworkCredential(_smtp.User, _smtp.Password);
+        var message = new MimeMessage();
+        message.From.Add(new MailboxAddress(_smtp.Name, _smtp.User));
+        message.To.Add(MailboxAddress.Parse(to));
+        message.Subject = subject;
 
-        var mail = new MailMessage(_email.From, to, subject, htmlBody) { IsBodyHtml = true };
-        await client.SendMailAsync(mail);
+        var body = new BodyBuilder { HtmlBody = htmlBody, TextBody = "View as HTML." };
+        message.Body = body.ToMessageBody();
+
+        using var client = new SmtpClient();
+
+        var secure = _smtp.EnableSsl ? SecureSocketOptions.StartTls : SecureSocketOptions.None;
+        await client.ConnectAsync(_smtp.Host, _smtp.Port, secure);
+        await client.AuthenticateAsync(_smtp.User, _smtp.Password);
+
+        await client.SendAsync(message);
+        await client.DisconnectAsync(true);
     }
 }
