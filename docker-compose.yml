@@ -15,8 +15,8 @@ services:
 
   identity:
     build:
-      context: ./src/Ims.DemoPlatform.Identity.API
-      dockerfile: Dockerfile
+      context: ./src
+      dockerfile: Ims.DemoPlatform.Identity.API/Dockerfile
     container_name: identity
     depends_on:
       - rabbitmq
@@ -36,12 +36,13 @@ services:
 
   notification:
     build:
-      context: ./src/Ims.DemoPlatform.NotificationService
-      dockerfile: Dockerfile
+      context: ./src
+      dockerfile: Ims.DemoPlatform.NotificationService/Dockerfile
     container_name: notification
     depends_on:
       - rabbitmq
     environment:
+      - ASPNETCORE_ENVIRONMENT=Development
       - RabbitMQOptions__Host=${RABBITMQ_HOST}
       - RabbitMQOptions__Exchange=${RABBITMQ_EXCHANGE}
       - Email__Provider=smtp

@@ -1,7 +1,7 @@
-using Ims.DemoPlatform.WebApi.Core.Responses;
+using Ims.DemoPlatform.Core.Responses;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Ims.DemoPlatform.Core.Extensions;
+namespace Ims.DemoPlatform.WebApi.Core.Extensions;
 
 public static class ControllerResponseExtensions
 {

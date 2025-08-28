@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-namespace Ims.DemoPlatform.Core.Extensions;
+namespace Ims.DemoPlatform.WebApi.Core.Extensions;
 
 public static class IdentityExtensions
 {

@@ -1,8 +1,6 @@
-using Ims.DemoPlatform.Core.Extensions;
-using Ims.DemoPlatform.Identity.API.Data;
 using Ims.DemoPlatform.Identity.API.Services;
+using Ims.DemoPlatform.WebApi.Core.Extensions;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Ims.DemoPlatform.Identity.API.Controllers;

@@ -1,7 +1,7 @@
 using Ims.DemoPlatform.Core.Middlewares;
 using Microsoft.AspNetCore.Builder;
 
-namespace Ims.DemoPlatform.Core.Extensions;
+namespace Ims.DemoPlatform.WebApi.Core.Extensions;
 
 public static class ExceptionHandlingExtensions
 {

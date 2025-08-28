@@ -4,6 +4,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.8" />
@@ -21,5 +22,11 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Ims.DemoPlatform.Core\Ims.DemoPlatform.Core.csproj" />
+    <ProjectReference Include="..\Ims.DemoPlatform.WebApi.Core\Ims.DemoPlatform.WebApi.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\..\.dockerignore">
+      <Link>.dockerignore</Link>
+    </Content>
   </ItemGroup>
 </Project>

@@ -1,10 +1,12 @@
+
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 using Serilog.Events;
 
-namespace Ims.DemoPlatform.Core.Extensions;
+namespace Ims.DemoPlatform.WebApi.Core.Extensions;
 
 public static class LoggingExtensions
 {
