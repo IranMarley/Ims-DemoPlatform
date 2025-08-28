@@ -15,6 +15,7 @@ builder.Services.AddSingleton(sp =>
 });
 builder.Services.AddSingleton<IMessageBus>(sp => sp.GetRequiredService<MessageBus>());
 
+
 builder.Services.Configure<SmtpOptions>(builder.Configuration.GetSection("Smtp"));
 builder.Services.AddSingleton<IEmailSender, SmtpEmailSender>();
 

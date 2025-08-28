@@ -13,26 +13,6 @@ services:
     volumes:
       - ./rabbitmq:/var/lib/rabbitmq
 
-  sqlserver:
-    image: mcr.microsoft.com/azure-sql-edge:latest
-    container_name: sqlserver
-    platform: linux/arm64/v8
-    environment:
-      - ACCEPT_EULA=1
-      - MSSQL_SA_PASSWORD=${DB_PASSWORD}
-      - MSSQL_PID=Developer
-      - MSSQL_USER=${DB_USER}
-    ports:
-      - "1433:1433"
-    volumes:
-      - ./mssql:/var/opt/mssql
-    healthcheck:
-      test: [ "CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "localhost,1433", "-U", "${DB_USER}", "-P", "${DB_PASSWORD}", "-Q", "SELECT 1" ]
-      interval: 10s
-      timeout: 5s
-      retries: 15
-      start_period: 20s
-  
   identity:
     build:
       context: ./src/Ims.DemoPlatform.Identity.API
@@ -40,12 +20,11 @@ services:
     container_name: identity
     depends_on:
       - rabbitmq
-      - sqlserver
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - RABBITMQ_HOST=rabbitmq
       - RABBITMQ_EXCHANGE=auth.events
-      - ConnectionStrings__DefaultConnection=Server=${DB_HOST},${DB_PORT};Database=${DB_NAME};User Id=${DB_USER};Password=${DB_PASSWORD};TrustServerCertificate=True;Encrypt=False
+      - ConnectionStrings__DefaultConnection=Host=${DB_HOST};Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};Include Error Detail=true
       - Cors__AllowedOrigins__0=${CORS_ALLOWED_ORIGIN}
       - Jwt__Issuer=${JWT_ISSUER}
       - Jwt__Audience=${JWT_AUDIENCE}
@@ -73,14 +52,14 @@ services:
       - Smtp__Password=${SMTP_PASSWORD}
       - Smtp__EnableSsl=${SMTP_ENABLE_SSL}
 
-  web:
-    build:
-      context: ./web-client
-      dockerfile: Dockerfile
-    container_name: web-client
-    ports:
-      - "5173:5173"
-    environment:
-      - VITE_AUTH_API_BASE=${VITE_AUTH_API_BASE}
-    depends_on:
-      - identity
+#  web:
+#    build:
+#      context: ./web-client
+#      dockerfile: Dockerfile
+#    container_name: web-client
+#    ports:
+#      - "5173:5173"
+#    environment:
+#      - VITE_AUTH_API_BASE=${VITE_AUTH_API_BASE}
+#    depends_on:
+#      - identity

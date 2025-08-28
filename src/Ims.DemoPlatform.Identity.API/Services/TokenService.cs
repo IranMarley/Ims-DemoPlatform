@@ -23,27 +23,45 @@ public class TokenService : ITokenService
 {
     private readonly JwtOptions _opt;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly RoleManager<IdentityRole> _roleManager;
     private readonly AuthDbContext _db;
 
-    public TokenService(IOptions<JwtOptions> opt, UserManager<ApplicationUser> userManager, AuthDbContext db)
+    public TokenService(IOptions<JwtOptions> opt, 
+        UserManager<ApplicationUser> userManager, 
+        RoleManager<IdentityRole> roleManager, 
+        AuthDbContext db)
     {
         _opt = opt.Value;
         _userManager = userManager;
+        _roleManager = roleManager;
         _db = db;
     }
 
     public async Task<TokenPair> IssueTokenPairAsync(ApplicationUser user)
     {
+        var roles = await _userManager.GetRolesAsync(user);
+        
         var claims = new List<Claim>
         {
             new(JwtRegisteredClaimNames.Sub, user.Id),
             new(JwtRegisteredClaimNames.Email, user.Email ?? ""),
-            new(ClaimTypes.NameIdentifier, user.Id)
+            new(ClaimTypes.NameIdentifier, user.Id),
+            new(ClaimTypes.Role, roles.FirstOrDefault() ?? ""),
         };
         
-        var roles = await _userManager.GetRolesAsync(user);
-        claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
-
+        var userClaims = await _userManager.GetClaimsAsync(user);
+        claims.AddRange(userClaims);
+        
+        foreach (var role in roles)
+        {
+            var identityRole = await _roleManager.FindByNameAsync(role);
+            
+            if (identityRole is null) continue;
+            
+            var roleClaims = await _roleManager.GetClaimsAsync(identityRole);
+            claims.AddRange(roleClaims);
+        }
+        
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_opt.SigningKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 

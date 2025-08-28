@@ -72,7 +72,6 @@ public class UserService : IUserService
         var identityUser = await GetUserAsync(userId);
         if (identityUser == null) throw new Exception("User not found");
 
-        identityUser.Name = user.Name;
         identityUser.UserName = user.Email;
         identityUser.Email = user.Email;
 

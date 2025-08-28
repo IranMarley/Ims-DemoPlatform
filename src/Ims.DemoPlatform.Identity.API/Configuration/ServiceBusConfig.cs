@@ -5,7 +5,7 @@ namespace Ims.DemoPlatform.Identity.API.Configuration;
 
 public static class ServiceBusConfig
 {
-    public static IServiceCollection AddServiceBusConfiguration(this WebApplicationBuilder builder)
+    public static void AddServiceBusConfiguration(this WebApplicationBuilder builder)
     {
         builder.Services.Configure<RabbitMqOptions>(builder.Configuration.GetSection(nameof(RabbitMqOptions)));
         builder.Services.AddSingleton(sp =>
@@ -14,7 +14,5 @@ public static class ServiceBusConfig
             return new MessageBus(opt);
         });
         builder.Services.AddSingleton<IMessageBus>(sp => sp.GetRequiredService<MessageBus>());
-        
-        return builder.Services;
     }
 }

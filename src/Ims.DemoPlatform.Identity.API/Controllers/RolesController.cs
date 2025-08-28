@@ -1,5 +1,6 @@
-using System.ComponentModel.DataAnnotations;
+using Ims.DemoPlatform.Core.Extensions;
 using Ims.DemoPlatform.Identity.API.Data;
+using Ims.DemoPlatform.Identity.API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -11,48 +12,55 @@ namespace Ims.DemoPlatform.Identity.API.Controllers;
 [Authorize(Roles = "Admin")]
 public class RolesController : ControllerBase
 {
-    private readonly RoleManager<IdentityRole> _roles;
-    private readonly UserManager<Data.ApplicationUser> _users;
-    public RolesController(RoleManager<IdentityRole> roles, UserManager<ApplicationUser> users)
+    private readonly ILogger<RolesController> _logger;
+    private readonly IRoleService _roleService;
+
+    public RolesController(ILogger<RolesController> logger, IRoleService roleService)
     {
-        _roles = roles; _users = users;
+        _logger = logger;
+        _roleService = roleService;
     }
 
-    [HttpGet] public IActionResult List() => Ok(_roles.Roles.Select(r => new { r.Id, r.Name }));
-
-    [HttpPost] public async Task<IActionResult> Create([FromBody] RoleDto dto)
+    [HttpGet]
+    public async Task<IActionResult> GetAllRoles()
     {
-        var res = await _roles.CreateAsync(new IdentityRole(dto.Name));
-        return res.Succeeded ? Ok() : BadRequest(res.Errors);
+        var roles = await _roleService.GetAllRolesAsync();
+        return Ok(this.Success(roles));
     }
-
-    [HttpDelete("{name}")]
-    public async Task<IActionResult> Delete(string name)
+    
+    [HttpGet("{roleId}")]
+    public async Task<IActionResult> GetRole(string roleId)
     {
-        var role = await _roles.FindByNameAsync(name);
-        if (role is null) return NotFound();
-        var res = await _roles.DeleteAsync(role);
-        return res.Succeeded ? Ok() : BadRequest(res.Errors);
+        var res = await _roleService.GetRoleAsync(roleId);
+        if (res == null) return NotFound(this.Fail("Role not found."));
+        
+        return Ok(this.Success(res));
     }
-
-    [HttpPost("assign")]
-    public async Task<IActionResult> Assign([FromBody] RoleAssignDto dto)
+    
+    [HttpPost]
+    public async Task<IActionResult> CreateRole([FromBody] string roleName)
     {
-        var user = await _users.FindByEmailAsync(dto.Email);
-        if (user is null) return NotFound("User not found");
-        var res = await _users.AddToRoleAsync(user, dto.Role);
-        return res.Succeeded ? Ok() : BadRequest(res.Errors);
+        var res = await _roleService.CreateRoleAsync(roleName);
+        if (!res.Succeeded) return BadRequest(this.Fail(res.GetErrors()));
+        
+        return Ok(this.Success());
     }
-
-    [HttpPost("remove")]
-    public async Task<IActionResult> Remove([FromBody] RoleAssignDto dto)
+    
+    [HttpPut("{roleId}")]
+    public async Task<IActionResult> UpdateRole(string roleId, [FromBody] string roleName)
     {
-        var user = await _users.FindByEmailAsync(dto.Email);
-        if (user is null) return NotFound("User not found");
-        var res = await _users.RemoveFromRoleAsync(user, dto.Role);
-        return res.Succeeded ? Ok() : BadRequest(res.Errors);
+        var res = await _roleService.UpdateRoleAsync(roleId, roleName);
+        if (!res.Succeeded) return BadRequest(this.Fail(res.GetErrors()));
+        
+        return Ok(this.Success());
+    }
+    
+    [HttpDelete("{roleId}")]
+    public async Task<IActionResult> DeleteRole(string roleId)
+    {
+        var res = await _roleService.DeleteRoleAsync(roleId);
+        if (!res.Succeeded) return BadRequest(this.Fail(res.GetErrors()));
+        
+        return Ok(this.Success());
     }
 }
-
-public record RoleDto([Required] string Name);
-public record RoleAssignDto([Required, EmailAddress] string Email, [Required] string Role);

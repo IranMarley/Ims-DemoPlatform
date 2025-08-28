@@ -4,7 +4,6 @@ using Ims.DemoPlatform.Core.MessageBus.Events;
 using Ims.DemoPlatform.Identity.API.Data;
 using Ims.DemoPlatform.Identity.API.Models;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 namespace Ims.DemoPlatform.Identity.API.Services;
@@ -62,7 +61,7 @@ public class AuthService : IAuthService
         }
 
         // Issue token pair
-        return new AuthResult(true, await _tokenService.IssueTokenPairAsync((ApplicationUser)user), "");
+        return new AuthResult(true, await _tokenService.IssueTokenPairAsync(user), "");
     }
 
     public Task<IdentityResult> RegisterAsync(RegisterDto registerDto)
