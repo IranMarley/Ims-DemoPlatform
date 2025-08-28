@@ -22,8 +22,8 @@ services:
       - rabbitmq
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - RABBITMQ_HOST=rabbitmq
-      - RABBITMQ_EXCHANGE=auth.events
+      - RabbitMQOptions__Host=rabbitmq
+      - RabbitMQOptions__Exchange=auth.events
       - ConnectionStrings__DefaultConnection=Host=${DB_HOST};Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};Include Error Detail=true
       - Cors__AllowedOrigins__0=${CORS_ALLOWED_ORIGIN}
       - Jwt__Issuer=${JWT_ISSUER}
@@ -42,8 +42,8 @@ services:
     depends_on:
       - rabbitmq
     environment:
-      - RabbitMQ__Host=${RABBITMQ_HOST}
-      - RabbitMQ__Exchange=${RABBITMQ_EXCHANGE}
+      - RabbitMQOptions__Host=${RABBITMQ_HOST}
+      - RabbitMQOptions__Exchange=${RABBITMQ_EXCHANGE}
       - Email__Provider=smtp
       - Smtp__Host=${SMTP_HOST}
       - Smtp__Port=${SMTP_PORT}
