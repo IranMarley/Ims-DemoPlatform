@@ -1,3 +1,4 @@
+using Ims.DemoPlatform.Core.Enums;
 using Ims.DemoPlatform.Identity.API.Services;
 using Ims.DemoPlatform.WebApi.Core.Extensions;
 using Microsoft.AspNetCore.Authorization;
@@ -7,7 +8,7 @@ namespace Ims.DemoPlatform.Identity.API.Controllers;
 
 [ApiController]
 [Route("roles")]
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = nameof(DefaultRoles.Admin))]
 public class RolesController : ControllerBase
 {
     private readonly ILogger<RolesController> _logger;

@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
 
-namespace Ims.DemoPlatform.Core.Middlewares;
+namespace Ims.DemoPlatform.WebApi.Core.Middlewares;
 
 public class ExceptionHandlingMiddleware
 {

@@ -1,3 +1,4 @@
+using Ims.DemoPlatform.Core.Enums;
 using Ims.DemoPlatform.Core.MessageBus;
 using Ims.DemoPlatform.Core.MessageBus.Contracts;
 using Ims.DemoPlatform.Core.MessageBus.Events;
@@ -21,18 +22,21 @@ public class AuthService : IAuthService
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
+    private readonly RoleManager<IdentityRole> _roleManager;
     private readonly IMessageBus _messageBus;
     private readonly ITokenService _tokenService;
     private readonly RabbitMqOptions _busOpts;
 
     public AuthService(UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
+        RoleManager<IdentityRole> roleManager,
         IMessageBus messageBus,
         ITokenService tokenService,
         IOptions<RabbitMqOptions> busOpts)
     {
         _userManager = userManager;
         _signInManager = signInManager;
+        _roleManager = roleManager;
         _messageBus = messageBus;
         _tokenService = tokenService;
         _busOpts = busOpts.Value;
@@ -64,7 +68,7 @@ public class AuthService : IAuthService
         return new AuthResult(true, await _tokenService.IssueTokenPairAsync(user), "");
     }
 
-    public Task<IdentityResult> RegisterAsync(RegisterDto registerDto)
+    public async Task<IdentityResult> RegisterAsync(RegisterDto registerDto)
     {
         var identityUser = new ApplicationUser
         {
@@ -73,12 +77,16 @@ public class AuthService : IAuthService
             EmailConfirmed = true
         };
 
-        var res = _userManager.CreateAsync(identityUser, registerDto.Password);
+        var res = await _userManager.CreateAsync(identityUser, registerDto.Password);
 
-        if (res.Result.Succeeded)
+        if (res.Succeeded)
         {
-            _messageBus.PublishAsync(_busOpts.Exchange, AuthEvents.UserRegistered,
-                new UserRegistered(identityUser.Email));
+            await _userManager.AddToRoleAsync(identityUser, nameof(DefaultRoles.User));
+        
+            var confirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(identityUser);
+            
+            _messageBus.PublishAsync(nameof(AuthEvents), AuthEvents.UserRegistered,
+                new UserRegistered(identityUser.Email, confirmationToken));
         }
 
         return res;
@@ -107,7 +115,7 @@ public class AuthService : IAuthService
 
         var token = await _userManager.GeneratePasswordResetTokenAsync(user);
 
-        await _messageBus.PublishAsync(_busOpts.Exchange, AuthEvents.UserRegistered,
+        await _messageBus.PublishAsync(nameof(AuthEvents), AuthEvents.UserPasswordResetRequested,
             new PasswordResetRequested(email, token));
 
         return IdentityResult.Success;

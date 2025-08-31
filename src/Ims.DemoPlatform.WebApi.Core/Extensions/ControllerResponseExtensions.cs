@@ -1,4 +1,4 @@
-using Ims.DemoPlatform.Core.Responses;
+using Ims.DemoPlatform.WebApi.Core.Responses;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Ims.DemoPlatform.WebApi.Core.Extensions;

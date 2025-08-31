@@ -1,4 +1,4 @@
-using Ims.DemoPlatform.Core.Middlewares;
+using Ims.DemoPlatform.WebApi.Core.Middlewares;
 using Microsoft.AspNetCore.Builder;
 
 namespace Ims.DemoPlatform.WebApi.Core.Extensions;

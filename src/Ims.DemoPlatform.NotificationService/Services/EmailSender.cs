@@ -1,3 +1,6 @@
+using System.Text.Json;
+using HandlebarsDotNet;
+using Ims.DemoPlatform.NotificationService.Model;
 using Ims.DemoPlatform.NotificationService.Options;
 using MailKit.Net.Smtp;
 using MailKit.Security;
@@ -8,7 +11,7 @@ namespace Ims.DemoPlatform.NotificationService.Services;
 
 public interface IEmailSender
 {
-    Task SendAsync(string to, string subject, string htmlBody);
+    Task SendAsync(string to, EmailData emailData);
 }
 
 public class SmtpEmailSender : IEmailSender
@@ -19,14 +22,26 @@ public class SmtpEmailSender : IEmailSender
         _smtp = smtp.Value;
     }
 
-    public async Task SendAsync(string to, string subject, string htmlBody)
+    public async Task SendAsync(string to, EmailData emailData)
     {
+        var layoutHtml = await File.ReadAllTextAsync(Path.Combine("Templates", "layout.html"));
+        var plainTxt   = await File.ReadAllTextAsync(Path.Combine("Templates", "plain.txt"));
+
+        var htmlTemplate = Handlebars.Compile(layoutHtml);
+        var textTemplate = Handlebars.Compile(plainTxt);
+
+        var json = JsonSerializer.Serialize(emailData);
+        var data = JsonSerializer.Deserialize<Dictionary<string, object?>>(json)!;
+
+        var html = htmlTemplate(data);
+        var text = textTemplate(data);
+        
         var message = new MimeMessage();
         message.From.Add(new MailboxAddress(_smtp.Name, _smtp.User));
         message.To.Add(MailboxAddress.Parse(to));
-        message.Subject = subject;
+        message.Subject = data["subject"]?.ToString() ?? "(no subject)";
 
-        var body = new BodyBuilder { HtmlBody = htmlBody, TextBody = "View as HTML." };
+        var body = new BodyBuilder { HtmlBody = html, TextBody = text };
         message.Body = body.ToMessageBody();
 
         using var client = new SmtpClient();

@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>{{subject}}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>body{margin:0;padding:0;background:#f4f6f8}table{border-collapse:collapse!important}</style>
+</head>
+<body>
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;mso-hide:all;">
+    {{preheader}}&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;
+</div>
+<table role="presentation" width="100%" bgcolor="#f4f6f8">
+    <tr>
+        <td align="center" style="padding:24px;">
+            <table role="presentation" width="600" style="width:600px;background:#fff;border-radius:12px;overflow:hidden">
+                <tr>
+                    <td style="padding:24px 24px 0 24px">
+                        <table role="presentation" width="100%">
+                            <tr>
+                                <td align="left">
+                                    <a href="{{brand_url}}">
+                                        <img src="{{brand_logo}}" width="120" alt="{{brand_name}}" style="display:block;max-width:120px;height:auto">
+                                    </a>
+                                </td>
+                                <td align="right" style="font:14px/20px Arial,Helvetica,sans-serif;color:#94a3b8">
+                                    {{email_tag}}
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td style="padding:16px 24px 0 24px">
+                        <h1 style="margin:0;font:600 24px/32px Arial,Helvetica,sans-serif;color:#0f172a">
+                            {{title}}
+                        </h1>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td style="padding:12px 24px 24px 24px;font:16px/24px Arial,Helvetica,sans-serif;color:#334155">
+                        <p style="margin:0 0 16px">Hello {{name}},</p>
+                        {{{body_html}}}
+
+                        {{#if cta_url}}
+                        <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:16px 0 0 0">
+                            <tr>
+                                <td align="center" bgcolor="#0ea5e9" style="border-radius:6px;">
+                                    <a href="{{cta_url}}" style="display:inline-block;padding:12px 24px;font:700 16px/20px Arial,Helvetica,sans-serif;color:#fff;text-decoration:none">
+                                        {{cta_text}}
+                                    </a>
+                                </td>
+                            </tr>
+                        </table>
+                        {{/if}}
+
+                        {{#if secondary_html}}
+                        <div style="margin-top:20px;border-top:1px solid #e2e8f0;padding-top:12px">
+                            {{{secondary_html}}}
+                        </div>
+                        {{/if}}
+
+                        {{#if note}}
+                        <p style="margin:16px 0 0;font:13px/20px Arial,Helvetica,sans-serif;color:#64748b">{{note}}</p>
+                        {{/if}}
+                    </td>
+                </tr>
+
+                <tr>
+                    <td style="padding:24px">
+                        <p style="margin:0 0 8px;font:12px/18px Arial,Helvetica,sans-serif;color:#94a3b8">
+                            {{brand_name}} • {{brand_address}}
+                        </p>
+                        <p style="margin:0;font:12px/18px Arial,Helvetica,sans-serif;color:#94a3b8">
+                            Support: <a href="{{support_url}}" style="color:#0ea5e9">click here</a>
+                            {{#if unsubscribe_url}} | <a href="{{unsubscribe_url}}" style="color:#0ea5e9">Unsubscribe</a>{{/if}}
+                        </p>
+                    </td>
+                </tr>
+            </table>
+
+            <table role="presentation" width="600" style="width:600px">
+                <tr><td align="center" style="padding:12px;font:11px/16px Arial,Helvetica,sans-serif;color:#94a3b8">
+                    {{legal_reason}}
+                </td></tr>
+            </table>
+        </td>
+    </tr>
+</table>
+</body>
+</html>

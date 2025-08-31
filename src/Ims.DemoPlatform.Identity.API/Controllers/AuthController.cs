@@ -51,14 +51,14 @@ public class AuthController : ControllerBase
     public async Task<ActionResult> Refresh([FromBody] RefreshDto dto)
     {
         var res = await _tokenService.RefreshAsync(dto.RefreshToken);
-        return res is null ? Unauthorized() : Ok(this.Success(res));
+        return res is null ? Unauthorized(this.Fail()) : Ok(this.Success(res));
     }
 
     [HttpPost("logout")]
     public async Task<ActionResult> Logout([FromBody] RefreshDto dto)
     {
         var res = await _tokenService.RevokeAsync(dto.RefreshToken);
-        return res ? Ok() : NotFound();
+        return res ? Ok(this.Success()) : NotFound(this.Fail());
     }
 
     [HttpPost("forgot")][AllowAnonymous]
@@ -67,7 +67,7 @@ public class AuthController : ControllerBase
         var res = await _authService.GeneratePasswordResetTokenAsync(dto.Email);
         
         if (!res.Succeeded) return BadRequest(this.Fail(res.GetErrors()));
-        return Ok();
+        return Ok(this.Success());
     }
 
     [HttpPost("reset")][AllowAnonymous]
@@ -76,6 +76,6 @@ public class AuthController : ControllerBase
         var res = await _authService.ResetPasswordAsync(dto);
         
         if (!res.Succeeded) return BadRequest(this.Fail(res.GetErrors()));
-        return Ok();
+        return Ok(this.Success());
     }
 }

@@ -33,6 +33,8 @@ services:
       - Jwt__RefreshTokenDays=${JWT_REFRESH_TOKEN_DAYS}
     ports:
       - "5005:8080"
+    volumes:
+      - ./logs:/logs
 
   notification:
     build:
@@ -45,13 +47,14 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - RabbitMQOptions__Host=${RABBITMQ_HOST}
       - RabbitMQOptions__Exchange=${RABBITMQ_EXCHANGE}
-      - Email__Provider=smtp
-      - Smtp__Host=${SMTP_HOST}
-      - Smtp__Port=${SMTP_PORT}
-      - Smtp__Name=${SMTP_NAME}
-      - Smtp__User=${SMTP_USER}
-      - Smtp__Password=${SMTP_PASSWORD}
-      - Smtp__EnableSsl=${SMTP_ENABLE_SSL}
+      - SmtpOptions__Host=${SMTP_HOST}
+      - SmtpOptions__Port=${SMTP_PORT}
+      - SmtpOptions__Name=${SMTP_NAME}
+      - SmtpOptions__User=${SMTP_USER}
+      - SmtpOptions__Password=${SMTP_PASSWORD}
+      - SmtpOptions__EnableSsl=${SMTP_ENABLE_SSL}
+    volumes:
+      - ./logs:/logs
 
 #  web:
 #    build:

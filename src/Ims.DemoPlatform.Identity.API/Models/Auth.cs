@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Ims.DemoPlatform.Identity.API.Models;
 
-public record RegisterDto([Required] string Name, [Required, EmailAddress] string Email, [Required] string Password);
+public record RegisterDto([Required, EmailAddress] string Email, [Required] string Password);
 public record LoginDto([Required, EmailAddress] string Email, [Required] string Password);
 public record RefreshDto([Required] string RefreshToken);
 public record ConfirmEmailDto([Required, EmailAddress] string Email, [Required] string Token);

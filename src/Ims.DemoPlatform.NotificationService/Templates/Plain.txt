@@ -1,0 +1,10 @@
+{{subject}}
+
+Hello {{name}},
+
+{{{body_text}}}
+
+Visit: {{cta_url}}
+
+Support: {{support_url}}
+{{#if unsubscribe_url}}Unsubscribe: {{unsubscribe_url}}{{/if}}
