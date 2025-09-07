@@ -1,11 +1,13 @@
 using Ims.DemoPlatform.Identity.API.Configuration;
+using Ims.DemoPlatform.WebApi.Core.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.AddIdentityConfiguration();
+builder.AddGlobalExceptionHandling();
 builder.AddApiConfiguration();
-builder.AddServiceBusConfiguration();
+builder.AddIdentityConfiguration();
 builder.AddSwaggerConfiguration();
+builder.AddServiceBusConfiguration();
 
 var app = builder.Build();
 

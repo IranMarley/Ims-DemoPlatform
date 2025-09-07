@@ -24,6 +24,8 @@ public class AuthController : ControllerBase
     [HttpPost("register")][AllowAnonymous]
     public async Task<IActionResult> Register([FromBody] RegisterDto dto)
     {
+        throw new ArgumentNullException("Test exception handling middleware");
+        
         var res = await _authService.RegisterAsync(dto);
 
         if (!res.Succeeded) return BadRequest(this.Fail(res.GetErrors()));
