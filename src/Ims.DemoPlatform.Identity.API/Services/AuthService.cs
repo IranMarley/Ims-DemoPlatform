@@ -85,7 +85,7 @@ public class AuthService : IAuthService
         
             var confirmationToken = await _userManager.GenerateEmailConfirmationTokenAsync(identityUser);
             
-            _messageBus.PublishAsync(nameof(AuthEvents), AuthEvents.UserRegistered,
+            await _messageBus.PublishAsync(nameof(AuthEvents), AuthEvents.UserRegistered,
                 new UserRegistered(identityUser.Email, confirmationToken));
         }
 

@@ -32,15 +32,16 @@ services:
       - Jwt__AccessTokenMinutes=${JWT_ACCESS_TOKEN_MINUTES}
       - Jwt__RefreshTokenDays=${JWT_REFRESH_TOKEN_DAYS}
     ports:
-      - "5005:8080"
+      - "5006:8080"
     volumes:
       - ./logs:/logs
 
-  notification:
+
+  notifications:
     build:
       context: ./src
-      dockerfile: Ims.DemoPlatform.NotificationService/Dockerfile
-    container_name: notification
+      dockerfile: Ims.DemoPlatform.NotificationsService/Dockerfile
+    container_name: notifications
     depends_on:
       - rabbitmq
     environment:
@@ -56,6 +57,65 @@ services:
     volumes:
       - ./logs:/logs
 
+  projects:
+    build:
+      context: ./src
+      dockerfile: Ims.DemoPlatform.Projects.API/Dockerfile
+    container_name: projects
+    depends_on:
+      - identity
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=${DB_HOST};Port=${DB_PORT};Database=${PROJECT_DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};Include Error Detail=true
+      - Jwt__Issuer=${JWT_ISSUER}
+      - Jwt__Audience=${JWT_AUDIENCE}
+      - Jwt__SigningKey=${JWT_SIGNING_KEY}
+      - Jwt__AccessTokenMinutes=${JWT_ACCESS_TOKEN_MINUTES}
+      - Jwt__RefreshTokenDays=${JWT_REFRESH_TOKEN_DAYS}
+      - Cors__AllowedOrigins__0=${CORS_ALLOWED_ORIGIN}
+    ports:
+      - "5007:8080"
+    volumes:
+      - ./logs:/logs
+
+  tasks:
+    build:
+      context: ./src
+      dockerfile: Ims.DemoPlatform.Tasks.API/Dockerfile
+    container_name: tasks
+    depends_on:
+      - identity
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=${DB_HOST};Port=${DB_PORT};Database=${TASK_DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};Include Error Detail=true
+      - Jwt__Issuer=${JWT_ISSUER}
+      - Jwt__Audience=${JWT_AUDIENCE}
+      - Jwt__SigningKey=${JWT_SIGNING_KEY}
+      - Jwt__AccessTokenMinutes=${JWT_ACCESS_TOKEN_MINUTES}
+      - Jwt__RefreshTokenDays=${JWT_REFRESH_TOKEN_DAYS}
+      - Cors__AllowedOrigins__0=${CORS_ALLOWED_ORIGIN}
+    ports:
+      - "5008:8080"
+    volumes:
+      - ./logs:/logs
+
+  gateway:
+    build:
+      context: ./src
+      dockerfile: Ims.DemoPlatform.Gateway.API/Dockerfile
+    container_name: gateway
+    depends_on:
+      - identity
+      - notifications
+      - projects
+      - tasks
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "5001:8080"
+    volumes:
+      - ./logs:/logs
+
 #  web:
 #    build:
 #      context: ./web-client
@@ -67,3 +127,4 @@ services:
 #      - VITE_AUTH_API_BASE=${VITE_AUTH_API_BASE}
 #    depends_on:
 #      - identity
+
