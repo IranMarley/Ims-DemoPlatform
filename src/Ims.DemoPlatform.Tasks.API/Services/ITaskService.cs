@@ -8,7 +8,7 @@ public interface ITaskService
     Task<IEnumerable<TaskDto>> GetAllAsync();
     Task<IEnumerable<TaskDto>> GetByProjectIdAsync(Guid projectId);
     Task<IEnumerable<TaskDto>> GetByAssignedUserIdAsync(Guid userId);
-    Task<TaskDto> CreateAsync(CreateTaskDto dto);
+    Task<TaskDto> CreateAsync(CreateTaskDto dto, Guid assignedUserId);
     Task<bool> UpdateAsync(Guid id, UpdateTaskDto dto);
     Task<bool> DeleteAsync(Guid id);
 }

@@ -1,4 +1,30 @@
 services:
+  loki:
+    image: grafana/loki:3.5.0
+    container_name: loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki/loki-config.yml:/etc/loki/local-config.yaml
+      - loki-data:/loki
+    command: -config.file=/etc/loki/local-config.yaml
+
+  grafana:
+    image: grafana/grafana:11.6.0
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - loki
+
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
@@ -20,6 +46,7 @@ services:
     container_name: identity
     depends_on:
       - rabbitmq
+      - loki
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - RabbitMQOptions__Host=rabbitmq
@@ -31,11 +58,11 @@ services:
       - Jwt__SigningKey=${JWT_SIGNING_KEY}
       - Jwt__AccessTokenMinutes=${JWT_ACCESS_TOKEN_MINUTES}
       - Jwt__RefreshTokenDays=${JWT_REFRESH_TOKEN_DAYS}
+      - LokiOptions__Url=http://loki:3100
     ports:
       - "5006:8080"
     volumes:
       - ./logs:/logs
-
 
   notifications:
     build:
@@ -44,6 +71,7 @@ services:
     container_name: notifications
     depends_on:
       - rabbitmq
+      - loki
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - RabbitMQOptions__Host=${RABBITMQ_HOST}
@@ -54,6 +82,9 @@ services:
       - SmtpOptions__User=${SMTP_USER}
       - SmtpOptions__Password=${SMTP_PASSWORD}
       - SmtpOptions__EnableSsl=${SMTP_ENABLE_SSL}
+      - LokiOptions__Url=http://loki:3100
+    ports:
+      - "5005:8080"
     volumes:
       - ./logs:/logs
 
@@ -64,6 +95,7 @@ services:
     container_name: projects
     depends_on:
       - identity
+      - loki
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Host=${DB_HOST};Port=${DB_PORT};Database=${PROJECT_DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};Include Error Detail=true
@@ -73,6 +105,7 @@ services:
       - Jwt__AccessTokenMinutes=${JWT_ACCESS_TOKEN_MINUTES}
       - Jwt__RefreshTokenDays=${JWT_REFRESH_TOKEN_DAYS}
       - Cors__AllowedOrigins__0=${CORS_ALLOWED_ORIGIN}
+      - LokiOptions__Url=http://loki:3100
     ports:
       - "5007:8080"
     volumes:
@@ -85,6 +118,7 @@ services:
     container_name: tasks
     depends_on:
       - identity
+      - loki
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Host=${DB_HOST};Port=${DB_PORT};Database=${TASK_DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD};Include Error Detail=true
@@ -94,6 +128,7 @@ services:
       - Jwt__AccessTokenMinutes=${JWT_ACCESS_TOKEN_MINUTES}
       - Jwt__RefreshTokenDays=${JWT_REFRESH_TOKEN_DAYS}
       - Cors__AllowedOrigins__0=${CORS_ALLOWED_ORIGIN}
+      - LokiOptions__Url=http://loki:3100
     ports:
       - "5008:8080"
     volumes:
@@ -109,8 +144,11 @@ services:
       - notifications
       - projects
       - tasks
+      - loki
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - Cors__AllowedOrigins__0=${CORS_ALLOWED_ORIGIN}
+      - LokiOptions__Url=http://loki:3100
     ports:
       - "5001:8080"
     volumes:
@@ -120,11 +158,15 @@ services:
 #    build:
 #      context: ./web-client
 #      dockerfile: Dockerfile
+#      args:
+#        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:5001}
 #    container_name: web-client
 #    ports:
-#      - "5173:5173"
-#    environment:
-#      - VITE_AUTH_API_BASE=${VITE_AUTH_API_BASE}
+#      - "5173:80"
 #    depends_on:
-#      - identity
+#      - gateway
+
+volumes:
+  loki-data:
+  grafana-data:
 

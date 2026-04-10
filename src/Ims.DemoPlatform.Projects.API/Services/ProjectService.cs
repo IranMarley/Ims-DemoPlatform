@@ -33,13 +33,13 @@ public class ProjectService : IProjectService
         return projects.Select(MapToDto);
     }
 
-    public async Task<ProjectDto> CreateAsync(CreateProjectDto dto)
+    public async Task<ProjectDto> CreateAsync(CreateProjectDto dto, Guid ownerId)
     {
         var project = new Project
         {
             Id = Guid.NewGuid(),
             Name = dto.Name,
-            OwnerId = dto.OwnerId,
+            OwnerId = ownerId,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -55,9 +55,6 @@ public class ProjectService : IProjectService
 
         if (!string.IsNullOrWhiteSpace(dto.Name))
             project.Name = dto.Name;
-
-        if (dto.OwnerId.HasValue)
-            project.OwnerId = dto.OwnerId.Value;
 
         return await _repository.UpdateAsync(project);
     }

@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Ims.DemoPlatform.Core.Enums;
 using Ims.DemoPlatform.Projects.API.Models.DTOs;
 using Ims.DemoPlatform.Projects.API.Services;
@@ -9,7 +10,7 @@ namespace Ims.DemoPlatform.Projects.API.Controllers;
 
 [ApiController]
 [Route("projects")]
-[Authorize(Roles = $"{nameof(DefaultRoles.Admin)},{nameof(DefaultRoles.User)}")]
+[Authorize]
 public class ProjectsController : ControllerBase
 {
     private readonly ILogger<ProjectsController> _logger;
@@ -27,10 +28,42 @@ public class ProjectsController : ControllerBase
         var user = User.Identity?.Name ?? "Unknown";
         _logger.LogInformation("User {User} requested all projects", user);
 
-        var projects = (await _projectService.GetAllAsync()).ToList();
+        IEnumerable<Models.DTOs.ProjectDto> projects;
 
-        _logger.LogInformation("Retrieved {Count} projects for user {User}", projects.Count, user);
-        return Ok(this.Success(projects));
+        if (User.IsInRole(nameof(DefaultRoles.Admin)))
+        {
+            projects = await _projectService.GetAllAsync();
+        }
+        else
+        {
+            var userId = GetCurrentUserId();
+            if (userId is null) return Unauthorized(this.Fail("Invalid user token."));
+            projects = await _projectService.GetByOwnerIdAsync(userId.Value);
+        }
+
+        var list = projects.ToList();
+        _logger.LogInformation("Retrieved {Count} projects for user {User}", list.Count, user);
+        return Ok(this.Success(list));
+    }
+
+    [HttpGet("lookup")]
+    public async Task<IActionResult> GetLookup()
+    {
+        IEnumerable<ProjectDto> projects;
+
+        if (User.IsInRole(nameof(DefaultRoles.Admin)))
+        {
+            projects = await _projectService.GetAllAsync();
+        }
+        else
+        {
+            var userId = GetCurrentUserId();
+            if (userId is null) return Unauthorized(this.Fail("Invalid user token."));
+            projects = await _projectService.GetByOwnerIdAsync(userId.Value);
+        }
+
+        var lookup = projects.Select(p => new { p.Id, p.Name });
+        return Ok(this.Success(lookup));
     }
 
     [HttpGet("{id:guid}")]
@@ -47,6 +80,9 @@ public class ProjectsController : ControllerBase
             return NotFound(this.Fail("Project not found."));
         }
 
+        if (!IsOwnerOrAdmin(project.OwnerId))
+            return Forbid();
+
         _logger.LogInformation("Project {ProjectId} retrieved by user {User}", id, user);
         return Ok(this.Success(project));
     }
@@ -54,6 +90,9 @@ public class ProjectsController : ControllerBase
     [HttpGet("owner/{ownerId:guid}")]
     public async Task<IActionResult> GetByOwner(Guid ownerId)
     {
+        if (!IsOwnerOrAdmin(ownerId))
+            return Forbid();
+
         var user = User.Identity?.Name ?? "Unknown";
         _logger.LogInformation("User {User} requested projects for owner {OwnerId}", user, ownerId);
 
@@ -67,11 +106,15 @@ public class ProjectsController : ControllerBase
     public async Task<IActionResult> Create([FromBody] CreateProjectDto dto)
     {
         var user = User.Identity?.Name ?? "Unknown";
-        
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (!Guid.TryParse(userId, out var ownerId))
+            return Unauthorized(this.Fail("Invalid user token."));
+
         _logger.LogInformation("User {User} attempting to create project '{ProjectName}' from IP: {IpAddress}",
             user, dto.Name, HttpContext.Connection.RemoteIpAddress);
 
-        var project = await _projectService.CreateAsync(dto);
+        var project = await _projectService.CreateAsync(dto, ownerId);
 
         _logger.LogInformation("Project '{ProjectName}' (ID: {ProjectId}) created by user {User}",
             project.Name, project.Id, user);
@@ -86,13 +129,19 @@ public class ProjectsController : ControllerBase
         _logger.LogInformation("User {User} attempting to update project {ProjectId} from IP: {IpAddress}",
             user, id, HttpContext.Connection.RemoteIpAddress);
 
-        var success = await _projectService.UpdateAsync(id, dto);
-
-        if (!success)
+        var project = await _projectService.GetByIdAsync(id);
+        if (project == null)
         {
             _logger.LogWarning("Project update failed - {ProjectId} not found by user {User}", id, user);
             return NotFound(this.Fail("Project not found."));
         }
+
+        if (!IsOwnerOrAdmin(project.OwnerId))
+            return Forbid();
+
+        var success = await _projectService.UpdateAsync(id, dto);
+        if (!success)
+            return NotFound(this.Fail("Project not found."));
 
         _logger.LogInformation("Project {ProjectId} updated by user {User}", id, user);
         return Ok(this.Success());
@@ -116,6 +165,19 @@ public class ProjectsController : ControllerBase
 
         _logger.LogWarning("Project {ProjectId} DELETED by user {User}", id, user);
         return Ok(this.Success());
+    }
+
+    private Guid? GetCurrentUserId()
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        return Guid.TryParse(userId, out var id) ? id : null;
+    }
+
+    private bool IsOwnerOrAdmin(Guid ownerId)
+    {
+        if (User.IsInRole(nameof(DefaultRoles.Admin))) return true;
+        var currentUserId = GetCurrentUserId();
+        return currentUserId.HasValue && currentUserId.Value == ownerId;
     }
 }
 

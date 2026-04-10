@@ -8,11 +8,13 @@ public class TaskService : ITaskService
 {
     private readonly ITaskRepository _repository;
     private readonly ILogger<TaskService> _logger;
+    private readonly IProjectService _projectService;
 
-    public TaskService(ITaskRepository repository, ILogger<TaskService> logger)
+    public TaskService(ITaskRepository repository, ILogger<TaskService> logger, IProjectService projectService)
     {
         _repository = repository;
         _logger = logger;
+        _projectService = projectService;
     }
 
     public async Task<TaskDto?> GetByIdAsync(Guid id)
@@ -39,8 +41,14 @@ public class TaskService : ITaskService
         return tasks.Select(t => MapToDto(t));
     }
 
-    public async Task<TaskDto> CreateAsync(CreateTaskDto dto)
+    public async Task<TaskDto> CreateAsync(CreateTaskDto dto, Guid assignedUserId)
     {
+        var projectExists = await _projectService.ProjectExistsAsync(dto.ProjectId);
+        if (!projectExists)
+        {
+            throw new ArgumentException("ProjectId does not exist.");
+        }
+
         var task = new ProjectTask
         {
             Id = Guid.NewGuid(),
@@ -48,7 +56,7 @@ public class TaskService : ITaskService
             Description = dto.Description,
             Status = ProjectTaskStatus.ToDo,
             ProjectId = dto.ProjectId,
-            AssignedUserId = dto.AssignedUserId,
+            AssignedUserId = assignedUserId,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -70,9 +78,6 @@ public class TaskService : ITaskService
 
         if (dto.Status.HasValue)
             task.Status = dto.Status.Value;
-
-        if (dto.AssignedUserId.HasValue)
-            task.AssignedUserId = dto.AssignedUserId.Value;
 
         return await _repository.UpdateAsync(task);
     }

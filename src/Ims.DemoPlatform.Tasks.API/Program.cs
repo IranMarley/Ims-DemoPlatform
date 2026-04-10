@@ -1,5 +1,6 @@
 using Ims.DemoPlatform.Tasks.API.Configuration;
 using Ims.DemoPlatform.WebApi.Core.Extensions;
+using Serilog;
 
 SerilogExtensions.RunWithSerilog(() =>
 {
@@ -19,6 +20,7 @@ SerilogExtensions.RunWithSerilog(() =>
 
     var app = builder.Build();
 
+    app.UseSerilogRequestLogging();
     app.UseSwaggerConfiguration(app.Environment);
     app.UseAuthentication();
     app.UseAuthorization();

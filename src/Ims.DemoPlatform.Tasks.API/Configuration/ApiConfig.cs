@@ -17,7 +17,8 @@ public static class ApiConfig
         builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 
         // Services
+        builder.Services.AddHttpContextAccessor();
+        builder.Services.AddHttpClient<IProjectService, ProjectService>();
         builder.Services.AddScoped<ITaskService, TaskService>();
     }
 }
-

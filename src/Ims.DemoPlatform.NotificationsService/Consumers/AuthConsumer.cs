@@ -32,7 +32,7 @@ public class AuthConsumer : BackgroundService
             var t1 = _bus.ConsumeAsync<UserRegistered>(exchange, AuthEvents.UserRegistered, HandleUserRegistered, stoppingToken);
             var t2 = _bus.ConsumeAsync<PasswordResetRequested>(exchange, AuthEvents.UserPasswordResetRequested, HandlePasswordResetRequested, stoppingToken);
 
-            Console.WriteLine("[*] NotificationService is running. Waiting for messages...");
+            _logger.LogInformation("NotificationService is running. Waiting for messages...");
 
             await Task.WhenAll(t1, t2);
         }

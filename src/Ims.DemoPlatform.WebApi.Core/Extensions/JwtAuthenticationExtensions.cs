@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Ims.DemoPlatform.WebApi.Core.Extensions;
@@ -82,7 +83,10 @@ public static class JwtAuthenticationExtensions
                     },
                     OnAuthenticationFailed = context =>
                     {
-                        Console.WriteLine($"JWT Error: {context.Exception.Message}");
+                        var logger = context.HttpContext.RequestServices
+                            .GetRequiredService<ILoggerFactory>()
+                            .CreateLogger("JwtAuthentication");
+                        logger.LogWarning(context.Exception, "JWT authentication failed");
                         return Task.CompletedTask;
                     }
                 };

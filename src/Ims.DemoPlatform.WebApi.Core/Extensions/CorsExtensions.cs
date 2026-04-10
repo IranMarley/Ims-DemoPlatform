@@ -36,10 +36,8 @@ public static class CorsExtensions
                 }
                 else
                 {
-                    // If no origins configured, allow all (not recommended for production)
-                    policy.AllowAnyOrigin()
-                          .AllowAnyHeader()
-                          .AllowAnyMethod();
+                    throw new InvalidOperationException(
+                        "CORS origins not configured. Set 'Cors:AllowedOrigins' in appsettings.json or environment variables.");
                 }
             });
         });

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Builder;
 using Serilog;
 using Serilog.Exceptions;
+using Serilog.Sinks.Grafana.Loki;
 
 namespace Ims.DemoPlatform.WebApi.Core.Extensions;
 
@@ -29,7 +30,17 @@ public static class SerilogExtensions
                 .Enrich.WithExceptionDetails()
                 .WriteTo.Console();
 
-            // Apply additional configuration if provided
+            var lokiUrl = context.Configuration["LokiOptions:Url"];
+            if (!string.IsNullOrEmpty(lokiUrl))
+            {
+                var appName = context.Configuration["Serilog:Properties:Application"] ?? "Unknown";
+                configuration.WriteTo.GrafanaLoki(lokiUrl, labels:
+                [
+                    new LokiLabel { Key = "app", Value = appName },
+                    new LokiLabel { Key = "environment", Value = context.HostingEnvironment.EnvironmentName }
+                ]);
+            }
+
             configureLogger?.Invoke(configuration);
         });
 

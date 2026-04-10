@@ -23,7 +23,7 @@ public class AuthController : ControllerBase
 
     [HttpPost("register")]
     [AllowAnonymous]
-    public async Task<IActionResult> Register([FromBody] RegisterDto dto)
+public async Task<IActionResult> Register([FromBody] RegisterDto dto)
     {
         _logger.LogInformation("User registration attempt for email: {Email}", dto.Email);
         
@@ -60,7 +60,7 @@ public class AuthController : ControllerBase
     
     [HttpPost("login")]
     [AllowAnonymous]
-    public async Task<ActionResult> Login([FromBody] LoginDto dto)
+public async Task<ActionResult> Login([FromBody] LoginDto dto)
     {
         _logger.LogInformation("Login attempt for email: {Email} from IP: {IpAddress}", 
             dto.Email, HttpContext.Connection.RemoteIpAddress);
@@ -121,7 +121,7 @@ public class AuthController : ControllerBase
     
     [HttpPost("forgot")]
     [AllowAnonymous]
-    public async Task<ActionResult> Forgot([FromBody] ForgotDto dto)
+public async Task<ActionResult> Forgot([FromBody] ForgotDto dto)
     {
         _logger.LogInformation("Password reset requested for email: {Email} from IP: {IpAddress}", 
             dto.Email, HttpContext.Connection.RemoteIpAddress);
@@ -144,7 +144,7 @@ public class AuthController : ControllerBase
     
     [HttpPost("reset")]
     [AllowAnonymous]
-    public async Task<ActionResult> Reset([FromBody] ResetDto dto)
+public async Task<ActionResult> Reset([FromBody] ResetDto dto)
     {
         _logger.LogInformation("Password reset attempt for email: {Email}", dto.Email);
         

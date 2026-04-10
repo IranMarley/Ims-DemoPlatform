@@ -1,6 +1,7 @@
 using Ims.DemoPlatform.Core.MessageBus;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Ims.DemoPlatform.WebApi.Core.Extensions;
@@ -23,7 +24,8 @@ public static class ServiceBusExtensions
         builder.Services.AddSingleton<IMessageBus>(sp =>
         {
             var options = sp.GetRequiredService<IOptions<RabbitMqOptions>>().Value;
-            return new MessageBus(options);
+            var logger = sp.GetRequiredService<ILogger<MessageBus>>();
+            return new MessageBus(options, logger);
         });
 
         return builder;

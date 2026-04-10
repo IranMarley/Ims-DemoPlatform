@@ -8,6 +8,8 @@ namespace Ims.DemoPlatform.Identity.API.Services;
 public interface IUserService
 {
     Task<IEnumerable<ApplicationUser>> GetAllUsersAsync();
+    Task<IEnumerable<UserResponseDto>> GetAllUsersWithRolesAsync();
+    Task<UserResponseDto> GetUserWithRolesAsync(string userId);
     Task<ApplicationUser> GetUserAsync(string userId);
     Task<IdentityResult> CreateUserAsync(UserDto user);
     Task<IdentityResult> UpdateUserAsync(string userId, UserDto user);
@@ -32,6 +34,28 @@ public class UserService : IUserService
     public async Task<IEnumerable<ApplicationUser>> GetAllUsersAsync()
     {
         return await _userManager.Users.ToListAsync();
+    }
+
+    public async Task<IEnumerable<UserResponseDto>> GetAllUsersWithRolesAsync()
+    {
+        var users = await _userManager.Users.ToListAsync();
+        var result = new List<UserResponseDto>();
+
+        foreach (var user in users)
+        {
+            var roles = await _userManager.GetRolesAsync(user);
+            result.Add(new UserResponseDto(user.Id, user.Email!, roles, user.EmailConfirmed));
+        }
+
+        return result;
+    }
+
+    public async Task<UserResponseDto> GetUserWithRolesAsync(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId)
+            ?? throw new KeyNotFoundException("User not found.");
+        var roles = await _userManager.GetRolesAsync(user);
+        return new UserResponseDto(user.Id, user.Email!, roles, user.EmailConfirmed);
     }
 
     public async Task<ApplicationUser> GetUserAsync(string userId)

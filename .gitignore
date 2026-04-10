@@ -58,3 +58,13 @@ nunit-*.xml
 
 # Ignore environment files
 .env
+
+# OS files
+.DS_Store
+
+# JetBrains IDE
+.idea/
+*.DotSettings.user
+
+# RabbitMQ container state
+rabbitmq/
